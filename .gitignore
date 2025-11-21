@@ -1,0 +1,4 @@
+flutter-sdk/
+field_force_app/.dart_tool/
+field_force_app/build/
+field_force_app/ios/Pods/
