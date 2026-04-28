@@ -30,6 +30,7 @@ export const TaskSuggestionSchema = z.object({
   dueDate: z.string().datetime().nullable(),
   priority: TaskPrioritySchema,
   suggestedReminder: z.string().datetime().nullable(),
+  confidence: z.number().min(0).max(1),
 }) satisfies z.ZodType<TaskSuggestion>;
 
 export type EmailPayloadInput = z.infer<typeof EmailPayloadSchema>;

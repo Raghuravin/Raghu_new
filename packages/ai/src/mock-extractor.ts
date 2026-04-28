@@ -61,6 +61,7 @@ export function mockExtractTask(payload: EmailPayload): TaskSuggestion {
     dueDate: dueDate ? dueDate.toISOString() : null,
     priority,
     suggestedReminder: suggestedReminder ? suggestedReminder.toISOString() : null,
+    confidence: 0.4,
   };
 }
 

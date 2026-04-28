@@ -64,17 +64,35 @@ pnpm --filter @task-capture/api start    # node dist/index.js
 {
   "ok": true,
   "data": {
-    "taskTitle": "Approve: Please approve the Q3 budget",
-    "summary": "From Alex: Hi — can you review and approve the attached budget by tomorrow?",
+    "taskTitle": "Approve Q3 budget",
+    "summary": "From Alex: review and approve the attached budget by tomorrow.",
     "dueDate": "2026-04-29T23:59:00.000Z",
     "priority": "high",
-    "suggestedReminder": "2026-04-28T23:59:00.000Z"
+    "suggestedReminder": "2026-04-28T23:59:00.000Z",
+    "confidence": 0.86
   }
 }
 ```
 
-The current implementation uses the deterministic mock extractor in
-`@task-capture/ai` (`mockExtractTask`). No LLM calls are made yet.
+### Extraction strategy
+
+When `OPENAI_API_KEY` is set, the request is run through the LLM extractor
+(`@task-capture/ai` → `llmExtractTask`):
+
+- A deterministic JSON schema is sent with `response_format: json_schema`
+  and `strict: true`, so OpenAI returns exactly the fields above.
+- `temperature` is `0` for reproducibility.
+- The result is sanitized: titles/summaries are clamped to length, the
+  priority must be one of `low | medium | high | urgent`, `dueDate` must
+  be `>=` the email timestamp or it is set to `null`, the reminder is
+  recomputed if it falls outside `(receivedAt, dueDate]`, and `confidence`
+  is clamped to `[0, 1]`.
+- On any provider / network / schema error, the service falls back to the
+  deterministic mock extractor (`mockExtractTask`) so the endpoint never
+  fails because of LLM problems. The mock's confidence is `0.4`.
+
+When `OPENAI_API_KEY` is **not** set the service uses the mock extractor
+directly. This is also what the local-dev default is.
 
 All responses follow the shared `ApiResponse<T>` shape from `@task-capture/shared`:
 
