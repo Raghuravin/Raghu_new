@@ -1,8 +1,8 @@
-import type { Task } from "@task-capture/shared";
+import type { MockTask } from "../lib/mock-tasks";
 
 import { TaskCard } from "./TaskCard";
 
-export function TaskList({ tasks, emptyMessage }: { tasks: Task[]; emptyMessage: string }) {
+export function TaskList({ tasks, emptyMessage }: { tasks: MockTask[]; emptyMessage: string }) {
   if (tasks.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-neutral-300 bg-white px-6 py-12 text-center">

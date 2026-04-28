@@ -32,7 +32,7 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:diff": "supabase db diff -f",
-    "db:types": "supabase gen types typescript --local > src/generated.types.ts"
+    "db:types": "supabase gen types typescript --local > src/database.types.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",

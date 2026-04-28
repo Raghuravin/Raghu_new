@@ -1,5 +1,14 @@
 import type { Task, TaskPriority, TaskStatus } from "@task-capture/shared";
 
+/**
+ * Dashboard view-model: a domain `Task` plus the next reminder time we want
+ * to render on the card. The real version will join the `tasks` and
+ * `reminders` tables; the mock keeps it inline.
+ */
+export interface MockTask extends Task {
+  nextReminderAt: string | null;
+}
+
 const NOW = new Date();
 
 function isoDaysFromNow(days: number, hour = 17): string {
@@ -21,35 +30,35 @@ function task(
     priority: TaskPriority;
     status: TaskStatus;
     dueAt?: string | null;
-    remindAt?: string | null;
+    nextReminderAt?: string | null;
     completedAt?: string | null;
     createdMinutesAgo?: number;
   },
-): Task {
+): MockTask {
+  const created = isoMinutesAgo(partial.createdMinutesAgo ?? 60);
   return {
     id,
     userId: "user_demo",
-    emailId: `email_${id}`,
     title: partial.title,
     description: partial.description,
     status: partial.status,
     priority: partial.priority,
     dueAt: partial.dueAt ?? null,
-    remindAt: partial.remindAt ?? null,
     completedAt: partial.completedAt ?? null,
-    createdAt: isoMinutesAgo(partial.createdMinutesAgo ?? 60),
+    createdAt: created,
     updatedAt: isoMinutesAgo(Math.max((partial.createdMinutesAgo ?? 60) - 5, 0)),
+    nextReminderAt: partial.nextReminderAt ?? null,
   };
 }
 
-export const MOCK_TASKS: Task[] = [
+export const MOCK_TASKS: MockTask[] = [
   task("t_001", {
     title: "Approve Q3 budget",
     description: "From Alex: review and approve the attached Q3 budget by EOD.",
     priority: "urgent",
     status: "pending",
     dueAt: isoDaysFromNow(0, 23),
-    remindAt: isoDaysFromNow(0, 18),
+    nextReminderAt: isoDaysFromNow(0, 18),
     createdMinutesAgo: 90,
   }),
   task("t_002", {
@@ -58,7 +67,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "high",
     status: "in_progress",
     dueAt: isoDaysFromNow(0, 20),
-    remindAt: isoDaysFromNow(0, 16),
+    nextReminderAt: isoDaysFromNow(0, 16),
     createdMinutesAgo: 240,
   }),
   task("t_003", {
@@ -67,7 +76,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "medium",
     status: "pending",
     dueAt: isoDaysFromNow(2, 17),
-    remindAt: isoDaysFromNow(1, 17),
+    nextReminderAt: isoDaysFromNow(1, 17),
     createdMinutesAgo: 60 * 18,
   }),
   task("t_004", {
@@ -76,7 +85,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "medium",
     status: "pending",
     dueAt: isoDaysFromNow(5, 17),
-    remindAt: isoDaysFromNow(4, 17),
+    nextReminderAt: isoDaysFromNow(4, 17),
     createdMinutesAgo: 60 * 24,
   }),
   task("t_005", {
@@ -85,7 +94,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "high",
     status: "pending",
     dueAt: isoDaysFromNow(7, 17),
-    remindAt: isoDaysFromNow(6, 17),
+    nextReminderAt: isoDaysFromNow(6, 17),
     createdMinutesAgo: 60 * 36,
   }),
   task("t_006", {
@@ -94,7 +103,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "low",
     status: "pending",
     dueAt: null,
-    remindAt: null,
+    nextReminderAt: null,
     createdMinutesAgo: 60 * 30,
   }),
   task("t_007", {
@@ -103,7 +112,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "medium",
     status: "done",
     dueAt: isoDaysFromNow(-1, 9),
-    remindAt: isoDaysFromNow(-1, 8),
+    nextReminderAt: isoDaysFromNow(-1, 8),
     completedAt: isoDaysFromNow(-1, 10),
     createdMinutesAgo: 60 * 60,
   }),
@@ -113,7 +122,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "high",
     status: "done",
     dueAt: isoDaysFromNow(-2, 17),
-    remindAt: isoDaysFromNow(-2, 12),
+    nextReminderAt: isoDaysFromNow(-2, 12),
     completedAt: isoDaysFromNow(-2, 16),
     createdMinutesAgo: 60 * 72,
   }),
@@ -123,7 +132,7 @@ export const MOCK_TASKS: Task[] = [
     priority: "medium",
     status: "done",
     dueAt: isoDaysFromNow(-3, 12),
-    remindAt: isoDaysFromNow(-3, 10),
+    nextReminderAt: isoDaysFromNow(-3, 10),
     completedAt: isoDaysFromNow(-3, 13),
     createdMinutesAgo: 60 * 96,
   }),

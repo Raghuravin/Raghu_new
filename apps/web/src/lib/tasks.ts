@@ -1,6 +1,4 @@
-import type { Task } from "@task-capture/shared";
-
-import { MOCK_TASKS } from "./mock-tasks";
+import { MOCK_TASKS, type MockTask } from "./mock-tasks";
 
 export type TaskBucket = "today" | "upcoming" | "done";
 
@@ -16,7 +14,7 @@ function endOfToday(now = new Date()): Date {
   return d;
 }
 
-export function getTasks(bucket: TaskBucket, now: Date = new Date()): Task[] {
+export function getTasks(bucket: TaskBucket, now: Date = new Date()): MockTask[] {
   const start = startOfToday(now);
   const end = endOfToday(now);
 
@@ -52,17 +50,17 @@ export function getCounts(now: Date = new Date()): Record<TaskBucket, number> {
   };
 }
 
-function byDueAtAsc(a: Task, b: Task): number {
+function byDueAtAsc(a: MockTask, b: MockTask): number {
   return new Date(a.dueAt ?? 0).getTime() - new Date(b.dueAt ?? 0).getTime();
 }
 
-function byDueAtAscNullsLast(a: Task, b: Task): number {
+function byDueAtAscNullsLast(a: MockTask, b: MockTask): number {
   if (a.dueAt === null && b.dueAt === null) return 0;
   if (a.dueAt === null) return 1;
   if (b.dueAt === null) return -1;
   return new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime();
 }
 
-function byCompletedAtDesc(a: Task, b: Task): number {
+function byCompletedAtDesc(a: MockTask, b: MockTask): number {
   return new Date(b.completedAt ?? 0).getTime() - new Date(a.completedAt ?? 0).getTime();
 }
