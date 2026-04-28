@@ -38,10 +38,43 @@ pnpm --filter @task-capture/api start    # node dist/index.js
 
 ## Routes
 
-| Method | Path            | Description                  |
-| ------ | --------------- | ---------------------------- |
-| GET    | `/health`       | Liveness + dependency report |
-| GET    | `/api/v1/tasks` | Placeholder (returns `[]`)   |
+| Method | Path                   | Description                                           |
+| ------ | ---------------------- | ----------------------------------------------------- |
+| GET    | `/health`              | Liveness + dependency report                          |
+| GET    | `/api/v1/tasks`        | Placeholder (returns `[]`)                            |
+| POST   | `/api/v1/extract-task` | Convert a Gmail email payload into a `TaskSuggestion` |
+
+### `POST /api/v1/extract-task`
+
+**Body** (validated by Zod, see `src/schemas/extraction.schema.ts`):
+
+```json
+{
+  "subject": "Please approve the Q3 budget",
+  "sender": "Alex <alex@example.com>",
+  "body": "Hi — can you review and approve the attached budget by tomorrow?",
+  "timestamp": "2026-04-28T10:00:00.000Z",
+  "sourceUrl": "https://mail.google.com/mail/u/0/#inbox/abc123"
+}
+```
+
+**Response** — `ApiResponse<TaskSuggestion>`:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "taskTitle": "Approve: Please approve the Q3 budget",
+    "summary": "From Alex: Hi — can you review and approve the attached budget by tomorrow?",
+    "dueDate": "2026-04-29T23:59:00.000Z",
+    "priority": "high",
+    "suggestedReminder": "2026-04-28T23:59:00.000Z"
+  }
+}
+```
+
+The current implementation uses the deterministic mock extractor in
+`@task-capture/ai` (`mockExtractTask`). No LLM calls are made yet.
 
 All responses follow the shared `ApiResponse<T>` shape from `@task-capture/shared`:
 
