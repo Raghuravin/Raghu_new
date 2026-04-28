@@ -1,23 +1,42 @@
 import "dotenv/config";
 
-import { loadConfig } from "./config.js";
-import { createLogger } from "./logger.js";
-import { createServer } from "./server.js";
+import { loadEnv } from "./config/env.js";
+import { buildServer } from "./server.js";
 
 async function main(): Promise<void> {
-  const config = loadConfig();
-  const logger = createLogger(config);
-  const app = createServer(config, logger);
+  const env = loadEnv();
+  const app = await buildServer(env);
 
-  app.listen(config.API_PORT, config.API_HOST, () => {
-    logger.info(
-      { port: config.API_PORT, host: config.API_HOST, env: config.NODE_ENV },
-      "Task Capture API listening",
-    );
+  const close = async (signal: string): Promise<void> => {
+    app.log.info({ signal }, "Shutting down");
+    try {
+      await app.close();
+      process.exit(0);
+    } catch (err) {
+      app.log.error({ err }, "Error during shutdown");
+      process.exit(1);
+    }
+  };
+
+  process.on("SIGINT", () => void close("SIGINT"));
+  process.on("SIGTERM", () => void close("SIGTERM"));
+  process.on("unhandledRejection", (reason) => {
+    app.log.error({ reason }, "Unhandled promise rejection");
   });
+  process.on("uncaughtException", (err) => {
+    app.log.fatal({ err }, "Uncaught exception");
+    process.exit(1);
+  });
+
+  try {
+    await app.listen({ host: env.API_HOST, port: env.API_PORT });
+  } catch (err) {
+    app.log.fatal({ err }, "Failed to start server");
+    process.exit(1);
+  }
 }
 
 main().catch((err) => {
-  console.error("Fatal error starting API:", err);
+  console.error("Fatal error during boot:", err);
   process.exit(1);
 });

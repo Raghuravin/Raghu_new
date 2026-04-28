@@ -1,9 +1,11 @@
-import type { ApiResponse, Task } from "@task-capture/shared";
-import { Router, type Router as ExpressRouter } from "express";
+import type { FastifyInstance } from "fastify";
 
-export const tasksRouter: ExpressRouter = Router();
+import { TasksController } from "../controllers/tasks.controller.js";
+import { TasksService } from "../services/tasks.service.js";
 
-tasksRouter.get("/", (_req, res) => {
-  const body: ApiResponse<Task[]> = { ok: true, data: [] };
-  res.json(body);
-});
+export async function tasksRoutes(app: FastifyInstance): Promise<void> {
+  const service = new TasksService({ supabase: app.supabase });
+  const controller = new TasksController(service);
+
+  app.get("/", controller.list);
+}

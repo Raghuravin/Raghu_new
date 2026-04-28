@@ -1,7 +1,18 @@
-import { Router, type Router as ExpressRouter } from "express";
+import type { FastifyInstance } from "fastify";
 
-export const healthRouter: ExpressRouter = Router();
+import { HealthController } from "../controllers/health.controller.js";
+import { HealthService } from "../services/health.service.js";
 
-healthRouter.get("/", (_req, res) => {
-  res.json({ ok: true, status: "healthy", timestamp: new Date().toISOString() });
-});
+const SERVER_STARTED_AT = Date.now();
+const VERSION = process.env.npm_package_version ?? "0.0.0";
+
+export async function healthRoutes(app: FastifyInstance): Promise<void> {
+  const service = new HealthService({
+    supabase: app.supabase,
+    version: VERSION,
+    startedAt: SERVER_STARTED_AT,
+  });
+  const controller = new HealthController(service);
+
+  app.get("/", controller.get);
+}
