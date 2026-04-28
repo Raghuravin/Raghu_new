@@ -9,7 +9,15 @@
   <body>
     <main>
       <h1>Task Capture</h1>
-      <p>Sign in to start capturing tasks.</p>
+      <p class="hint">Convert emails into tasks with reminders.</p>
+
+      <label class="field">
+        <span>API base URL</span>
+        <input id="api-url" type="url" placeholder="http://localhost:4000" />
+      </label>
+
+      <button id="save" type="button">Save</button>
+      <p id="status" class="status" aria-live="polite"></p>
     </main>
     <script type="module" src="./popup.ts"></script>
   </body>

@@ -15,9 +15,12 @@
     {
       "matches": ["https://mail.google.com/*"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
     }
   ],
-  "permissions": ["storage", "identity", "activeTab"],
-  "host_permissions": ["https://mail.google.com/*"]
+  "permissions": ["storage"],
+  "host_permissions": ["http://localhost:4000/*", "http://127.0.0.1:4000/*"],
+  "optional_host_permissions": ["https://*/*"]
 }
