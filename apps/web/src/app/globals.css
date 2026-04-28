@@ -1,0 +1,17 @@
+:root {
+  --tc-bg: #ffffff;
+  --tc-fg: #0f172a;
+  --tc-accent: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--tc-bg);
+  color: var(--tc-fg);
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@task-capture/extension-gmail",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Task Capture Chrome extension for Gmail integration.",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@task-capture/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.293",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
+}

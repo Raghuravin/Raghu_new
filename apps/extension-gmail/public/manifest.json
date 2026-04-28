@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Task Capture for Gmail",
+  "version": "0.1.0",
+  "description": "Convert Gmail emails into tasks with reminders.",
+  "action": {
+    "default_title": "Task Capture",
+    "default_popup": "popup/index.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["storage", "identity", "activeTab"],
+  "host_permissions": ["https://mail.google.com/*"]
+}
