@@ -1,17 +1,19 @@
-:root {
-  --tc-bg: #ffffff;
-  --tc-fg: #0f172a;
-  --tc-accent: #2563eb;
-}
+@import "tailwindcss";
 
-* {
-  box-sizing: border-box;
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
 }
 
 html,
 body {
-  margin: 0;
-  padding: 0;
-  background: var(--tc-bg);
-  color: var(--tc-fg);
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
