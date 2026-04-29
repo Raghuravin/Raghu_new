@@ -1,0 +1,231 @@
+/* All extension UI is namespaced under `.tc-` to avoid colliding with Gmail. */
+
+#tc-create-task-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2147483640;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #1e40af;
+  background: #2563eb;
+  color: #ffffff;
+  font:
+    600 13px/1.2 -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+#tc-create-task-btn:hover {
+  background: #1d4ed8;
+}
+#tc-create-task-btn:active {
+  transform: translateY(1px);
+}
+
+#tc-modal-host {
+  all: initial;
+}
+
+.tc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483641;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family:
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+  color: #0f172a;
+}
+
+.tc-dialog {
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.tc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.tc-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.tc-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: #475569;
+}
+.tc-icon-btn:hover {
+  background: #f1f5f9;
+}
+
+.tc-body {
+  padding: 16px 18px;
+  overflow-y: auto;
+}
+.tc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tc-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+}
+.tc-input {
+  font:
+    13px/1.4 -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+}
+.tc-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.tc-textarea {
+  resize: vertical;
+  min-height: 60px;
+  font-family:
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+}
+.tc-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.tc-preview {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #475569;
+}
+.tc-preview-meta {
+  font-weight: 500;
+  color: #0f172a;
+}
+.tc-preview-conf {
+  margin-top: 4px;
+  color: #64748b;
+}
+.tc-muted {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+.tc-error-text {
+  color: #b91c1c;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.tc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+.tc-actions {
+  display: flex;
+  gap: 8px;
+}
+.tc-btn {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.tc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.tc-btn-secondary {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e5e7eb;
+}
+.tc-btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+}
+.tc-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid #1e40af;
+}
+.tc-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.tc-status {
+  font-size: 12px;
+}
+.tc-status-info {
+  color: #475569;
+}
+.tc-status-success {
+  color: #166534;
+}
+.tc-status-error {
+  color: #b91c1c;
+}
+
+.tc-toast {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 2147483640;
+  padding: 8px 12px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 6px;
+  font:
+    500 12px -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
