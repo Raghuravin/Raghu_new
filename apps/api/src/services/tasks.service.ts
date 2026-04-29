@@ -1,13 +1,25 @@
-import { randomUUID } from "node:crypto";
-
+import {
+  RemindersRepository,
+  TaskSourcesRepository,
+  TasksRepository,
+  type CreateTaskInput as RepoCreateTaskInput,
+} from "@task-capture/db";
 import type { Reminder, Task, TaskSource } from "@task-capture/shared";
 import type { FastifyBaseLogger } from "fastify";
 
 import type { DbClient } from "../lib/supabase.js";
 
+import { InMemoryTasksStore } from "./tasks.store.js";
+
 export interface TasksServiceDeps {
   supabase: DbClient | null;
   logger?: FastifyBaseLogger;
+}
+
+export interface ListTasksOptions {
+  userId: string;
+  status?: Task["status"] | Task["status"][];
+  limit?: number;
 }
 
 export interface CreateTaskInput {
@@ -16,6 +28,7 @@ export interface CreateTaskInput {
   status?: Task["status"];
   priority?: Task["priority"];
   dueAt?: string | null;
+  /** When set, a reminder row will be created alongside the task. */
   remindAt?: string | null;
   source?: {
     provider: TaskSource["provider"];
@@ -34,92 +47,93 @@ export interface CreatedTask {
   reminder: Reminder | null;
 }
 
-const PLACEHOLDER_USER_ID = "00000000-0000-0000-0000-000000000000";
-
 /**
- * Tasks service. Persistence is intentionally stubbed at this stage — auth
- * and the user-scoped Supabase context are not yet wired in. `create`
- * accepts and validates the same shape the production version will use,
- * returns a fully-formed `Task` (+ optional source / reminder), and logs
- * what would have been written so the extension and dashboard can be
- * developed end-to-end against a real-shaped response.
+ * Tasks service.
+ *
+ * - When a Supabase client is configured, persists tasks / sources /
+ *   reminders via the typed repositories from `@task-capture/db`.
+ * - Otherwise falls back to a per-user in-memory store seeded with
+ *   demo data so the dashboard and extension are usable without a DB.
+ *
+ * The caller is always identified by `userId`. Authentication is
+ * enforced at the route layer via `app.requireAuth`.
  */
 export class TasksService {
-  private readonly supabase: DbClient | null;
   private readonly logger: FastifyBaseLogger | undefined;
+  private readonly memory: InMemoryTasksStore;
+
+  // Repositories are lazy: they only get instantiated when supabase is set.
+  private readonly tasksRepo: TasksRepository | null;
+  private readonly sourcesRepo: TaskSourcesRepository | null;
+  private readonly remindersRepo: RemindersRepository | null;
 
   constructor(deps: TasksServiceDeps) {
-    this.supabase = deps.supabase;
     this.logger = deps.logger;
+    this.memory = new InMemoryTasksStore();
+    this.tasksRepo = deps.supabase ? new TasksRepository(deps.supabase) : null;
+    this.sourcesRepo = deps.supabase ? new TaskSourcesRepository(deps.supabase) : null;
+    this.remindersRepo = deps.supabase ? new RemindersRepository(deps.supabase) : null;
   }
 
-  async list(): Promise<Task[]> {
-    return [];
+  async list(opts: ListTasksOptions): Promise<Task[]> {
+    if (this.tasksRepo) {
+      return this.tasksRepo.list({
+        userId: opts.userId,
+        status: opts.status,
+        limit: opts.limit,
+      });
+    }
+    return this.memory.list(opts);
   }
 
-  async create(input: CreateTaskInput): Promise<CreatedTask> {
-    const now = new Date().toISOString();
-    const userId = PLACEHOLDER_USER_ID;
-    const taskId = randomUUID();
+  async create(userId: string, input: CreateTaskInput): Promise<CreatedTask> {
+    if (!this.tasksRepo || !this.sourcesRepo || !this.remindersRepo) {
+      const created = this.memory.create(userId, input);
+      this.logger?.info(
+        { taskId: created.task.id, hasSource: !!created.source, hasReminder: !!created.reminder },
+        "tasks.create: persisted in-memory (Supabase not configured)",
+      );
+      return created;
+    }
 
-    const task: Task = {
-      id: taskId,
+    const repoInput: RepoCreateTaskInput = {
       userId,
       title: input.title,
       description: input.description ?? null,
       status: input.status ?? "pending",
       priority: input.priority ?? "medium",
       dueAt: input.dueAt ?? null,
-      completedAt: null,
-      createdAt: now,
-      updatedAt: now,
     };
+    const task = await this.tasksRepo.create(repoInput);
 
-    const source: TaskSource | null = input.source
-      ? {
-          id: randomUUID(),
-          taskId,
-          userId,
-          provider: input.source.provider,
-          externalId: input.source.externalId ?? null,
-          subject: input.source.subject ?? null,
-          sender: input.source.sender ?? null,
-          sourceUrl: input.source.sourceUrl ?? null,
-          receivedAt: input.source.receivedAt ?? null,
-          snippet: input.source.snippet ?? null,
-          metadata: {},
-          createdAt: now,
-          updatedAt: now,
-        }
-      : null;
-
-    const reminder: Reminder | null = input.remindAt
-      ? {
-          id: randomUUID(),
-          taskId,
-          userId,
-          remindAt: input.remindAt,
-          status: "scheduled",
-          sentAt: null,
-          channel: null,
-          metadata: {},
-          createdAt: now,
-          updatedAt: now,
-        }
-      : null;
-
-    if (this.supabase) {
-      // Persistence path will be wired here once auth + RLS context land.
-      this.logger?.info(
-        { taskId, hasSource: source !== null, hasReminder: reminder !== null },
-        "tasks.create: Supabase configured, persistence pending auth integration",
-      );
-    } else {
-      this.logger?.info(
-        { taskId, hasSource: source !== null, hasReminder: reminder !== null },
-        "tasks.create: persisted in-memory only (Supabase not configured)",
-      );
+    let source: TaskSource | null = null;
+    if (input.source) {
+      source = await this.sourcesRepo.create({
+        taskId: task.id,
+        userId,
+        provider: input.source.provider,
+        externalId: input.source.externalId ?? null,
+        subject: input.source.subject ?? null,
+        sender: input.source.sender ?? null,
+        sourceUrl: input.source.sourceUrl ?? null,
+        receivedAt: input.source.receivedAt ?? null,
+        snippet: input.source.snippet ?? null,
+      });
     }
+
+    let reminder: Reminder | null = null;
+    if (input.remindAt) {
+      reminder = await this.remindersRepo.create({
+        taskId: task.id,
+        userId,
+        remindAt: input.remindAt,
+      });
+    }
+
+    this.logger?.info(
+      { taskId: task.id, hasSource: source !== null, hasReminder: reminder !== null },
+      "tasks.create: persisted to Supabase",
+    );
 
     return { task, source, reminder };
   }

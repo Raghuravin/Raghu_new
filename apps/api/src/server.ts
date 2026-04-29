@@ -5,6 +5,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 
 import type { Env } from "./config/env.js";
 import { buildLoggerOptions } from "./lib/logger.js";
+import authPlugin from "./plugins/auth.js";
 import configPlugin from "./plugins/config.js";
 import errorHandlerPlugin from "./plugins/error-handler.js";
 import supabasePlugin from "./plugins/supabase.js";
@@ -40,6 +41,7 @@ export async function buildServer(env: Env): Promise<FastifyInstance> {
     credentials: true,
   });
   await app.register(supabasePlugin);
+  await app.register(authPlugin);
   await app.register(registerRoutes);
 
   return app;
