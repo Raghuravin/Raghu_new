@@ -2,8 +2,10 @@ import { PageHeader } from "../../components/PageHeader";
 import { TaskList } from "../../components/TaskList";
 import { getTasks } from "../../lib/tasks";
 
-export default function TodayPage() {
-  const tasks = getTasks("today");
+export const dynamic = "force-dynamic";
+
+export default async function TodayPage() {
+  const { tasks, error } = await getTasks("today");
   return (
     <>
       <PageHeader
@@ -11,7 +13,7 @@ export default function TodayPage() {
         description="Tasks due today, sorted by time."
         count={tasks.length}
       />
-      <TaskList tasks={tasks} emptyMessage="Nothing due today. Inbox zero vibes." />
+      <TaskList tasks={tasks} emptyMessage="Nothing due today. Inbox zero vibes." error={error} />
     </>
   );
 }

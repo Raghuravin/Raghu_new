@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   description: "Convert Gmail emails into tasks with reminders.",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  const counts = getCounts();
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const counts = await getCounts();
   return (
     <html lang="en">
       <body>

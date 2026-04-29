@@ -1,10 +1,10 @@
-import type { MockTask } from "../lib/mock-tasks";
+import type { Task } from "@task-capture/shared";
 
 import { formatCompletedAt, formatRelativeDay } from "../lib/format";
 
 import { PriorityBadge } from "./PriorityBadge";
 
-export function TaskCard({ task }: { task: MockTask }) {
+export function TaskCard({ task }: { task: Task }) {
   const isDone = task.status === "done";
   return (
     <article
@@ -38,9 +38,6 @@ export function TaskCard({ task }: { task: MockTask }) {
             <span>
               {isDone ? formatCompletedAt(task.completedAt) : formatRelativeDay(task.dueAt)}
             </span>
-            {!isDone && task.nextReminderAt ? (
-              <span>· Reminder {formatRelativeDay(task.nextReminderAt)}</span>
-            ) : null}
           </div>
         </div>
       </div>
